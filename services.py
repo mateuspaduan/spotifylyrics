@@ -93,6 +93,7 @@ def _songmeanings(artist, song):
                 pass
         templyrics = soup.find_all("li")[4]
         lyrics = templyrics.getText()
+        lyrics = lyrics.split("(r,s)};})();")[1]
     except Exception:
         lyrics = error
     if lyrics == "We are currently missing these lyrics.":
@@ -126,9 +127,8 @@ def _genius(artist, song):
     try:
         url = "http://genius.com/%s-%s-lyrics" % (artist.replace(' ', '-'), song.replace(' ', '-'))
         lyricspage = requests.get(url, proxies=proxy)
-        print(url)
         soup = BeautifulSoup(lyricspage.text, 'html.parser')
-        lyrics = soup.text.split('Lyrics')[3].split('More on Genius')[0]
+        lyrics = soup.find("div", {"class": "lyrics"}).get_text()
         if artist.lower().replace(" ", "") not in soup.text.lower().replace(" ", ""):
             lyrics = error
     except Exception:
