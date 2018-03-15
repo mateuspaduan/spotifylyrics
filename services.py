@@ -1,4 +1,6 @@
 from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import requests
 import urllib
 import time
@@ -169,13 +171,24 @@ def _ultimateguitar(artist, song):
     # song = song.replace('-', '+')
     # artist = artist.replace('-', '+')
     url = url_pt1+artist+url_pt2+song+url_pt3
-    page = requests.get(url)
-
-    soup = BeautifulSoup(page.content, 'html.parser')
 
     urls = []
-    for a in soup.find_all(class_='song result-link js-search-spelling-link', href=True):
-        urls.append(a['href'])
+
+    # get rendered html
+    options = Options()
+    options.add_argument("--headless")
+    dir_path = os.path.dirname(os.path.realpath(__file__))
+    chromedriver = dir_path + "/chromedriver"
+    os.environ["webdriver.chrome.driver"] = chromedriver
+    driver = webdriver.Chrome(chrome_options=options, executable_path=chromedriver)
+    driver.get(url)
+    html = driver.page_source
+
+    soup = BeautifulSoup(html, 'html.parser')
+
+    for a in soup.find_all(class_='_335bj'):
+        if a.find(class_='UTl5K _3f2kz') == None:
+            urls.append(a.find(class_='link-primary')['href'])
 
     return urls
 
